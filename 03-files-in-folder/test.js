@@ -1,0 +1,2 @@
+function getFileInfo(file) {
+}
