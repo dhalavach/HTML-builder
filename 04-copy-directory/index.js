@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 function copyDir() {
-  fs.mkdir(path.join(__dirname, 'files-copy'), (err) => {
+  fs.mkdir(path.join(__dirname, 'files-copy'), { recursive: true }, (err) => {
     if (err) console.error(err);
   });
   fs.readdir(
