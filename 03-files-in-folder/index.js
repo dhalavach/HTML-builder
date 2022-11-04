@@ -4,9 +4,9 @@ const path = require('path');
 fs.readdir(
   path.join(__dirname, 'secret-folder'),
   { withFileTypes: true },
-  (err, files) => {
-    if (err) {
-      console.log(err);
+  (error, files) => {
+    if (error) {
+      console.log(error);
     } else {
       files.forEach((file) => {
         if (file.isFile()) {
@@ -14,7 +14,16 @@ fs.readdir(
             path.join(__dirname, 'secret-folder', file.name),
             (error, fileStats) => {
               if (error) console.log(error);
-              console.log(file.name + ' - ' + fileStats.size / 1000 + ' Kb');
+              console.log(
+                path.parse(file.name).name +
+                  ' - ' +
+                  path.extname(
+                    path.join(__dirname, 'secret-folder', file.name)
+                  ) +
+                  ' - ' +
+                  fileStats.size / 1000 +
+                  ' Kb'
+              );
             }
           );
         }
