@@ -3,6 +3,7 @@
 const fs = require("fs");
 const path = require("path");
 const readline = require("node:readline");
+const { stdout } = require("process");
 
 // //1
 // const { stdin, stdout } = process;
@@ -31,10 +32,7 @@ const writeStream = fs.createWriteStream(path.join(__dirname, "output.txt"));
 const rl = readline.createInterface(process.stdin, process.stdout);
 const exitCommand = "exit";
 
-rl.question("Please enter text and press ENTER:  ", (chunk) => {
-  writeStream.write(chunk);
-});
-//rl.close();
+stdout.write("Enter text and press ENTER or type 'exit' to leave: ");
 
 rl.on("line", (line) => {
   if (line.toString().toLowerCase() === exitCommand) {
@@ -42,7 +40,7 @@ rl.on("line", (line) => {
     rl.close();
     process.exit(0);
   } else {
-    writeStream.write(line);
+    writeStream.write(line + "\n");
   }
 });
 
