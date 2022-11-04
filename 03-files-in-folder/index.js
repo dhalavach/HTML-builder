@@ -10,13 +10,11 @@ fs.readdir(
     } else {
       files.forEach((file) => {
         if (file.isFile()) {
-          console.log(file.name);
-
           fs.stat(
             path.join(__dirname, 'secret-folder', file.name),
             (error, fileStats) => {
               if (error) console.log(error);
-              console.log(fileStats.size / 1000 + ' Kb');
+              console.log(file.name + ' - ' + fileStats.size / 1000 + ' Kb');
             }
           );
         }
