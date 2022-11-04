@@ -2,7 +2,23 @@ const fs = require('fs');
 const path = require('path');
 
 function copyDir() {
-  fs.mkdir(path.join(__dirname, 'files-copy'), { recursive: true }, (err) => {
+  let destination = path.join(__dirname, 'files-copy');
+
+  // fs.access(destination, (error) => {
+  //   error ? console.log('does not exist')
+  //     : fs.rm(destination, { recursive: true, force: true }, (error) => {
+  //         if (error) console.log(error);
+  //       });
+  // });
+
+  if (fs.existsSync(destination)) {
+    fs.rmSync(destination, { recursive: true, force: true }, (error) => {
+      if (error) console.log(error);
+    });
+    console.log('folder deleted');
+  }
+
+  fs.mkdir(destination, { recursive: true }, (err) => {
     if (err) console.error(err);
   });
   fs.readdir(
@@ -15,9 +31,7 @@ function copyDir() {
         files.forEach((file) => {
           if (file.isFile()) {
             fs.createReadStream(path.join(__dirname, 'files', file.name)).pipe(
-              fs.createWriteStream(
-                path.join(__dirname, 'files-copy', file.name)
-              )
+              fs.createWriteStream(path.join(destination, file.name))
             );
           }
         });
