@@ -10,7 +10,7 @@ function getStyles() {
         console.log(error);
       } else {
         files.forEach((file) => {
-          if (path.extname(path.join(__dirname, 'secret-folder', file.name)) === '.css') {
+          if (path.extname(path.join(__dirname, 'styles', file.name)) === '.css') {
             let readStream = fs.createReadStream(path.join(__dirname, 'styles', file.name));
             readStream.pipe(writeStream);
           }
