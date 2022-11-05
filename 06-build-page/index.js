@@ -2,7 +2,8 @@ const fs = require('fs');
 const path = require('path');
 
 const destination = path.join(__dirname, 'project-dist');
-const writeStream = fs.createWriteStream(path.join(__dirname, 'project-dist', 'style.css'));
+const assetsOutputFolder = path.join(destination, 'assets');
+const writeStream = fs.createWriteStream(path.join(destination, 'style.css'));
 
 
 function buildPage() {
@@ -41,8 +42,6 @@ function bundleStyles() {
 }
 
 function copyAssets() {
-  let assetsOutputFolder = path.join(destination, 'assets');
-
   fs.access(assetsOutputFolder, (error) => {
     error
       ? copy()
@@ -50,7 +49,6 @@ function copyAssets() {
         copy();
       });
   });
-
   function copy() {
     fs.mkdir(assetsOutputFolder, { recursive: true }, (err) => {
       if (err) console.error(err);
@@ -62,17 +60,63 @@ function copyAssets() {
         if (error) {
           console.log(error);
         } else {
-          fs.cp(path.join(__dirname, 'assets'), assetsOutputFolder, { recursive: true }, error => {
-            if (error) console.log(error)
+          
+          //TODO replace fs.cp with another method to copy folder
+          // fs.cp(path.join(__dirname, 'assets'), assetsOutputFolder, { recursive: true }, error => {
+          //   if (error) console.log(error)
+          // })
+
+          copyRecursively(path.join(__dirname, 'assets'), assetsOutputFolder, error => {
+            if (error) console.log(error);
           })
 
         }
       }
     );
   }
-
 }
 
+
+function copyRecursively(src, dest, callback) {
+  const copy = (copySrc, copyDest) => {
+    fs.readdir(copySrc, (err, list) => {
+      if (err) {
+        callback(err);
+        return;
+      }
+      list.forEach((item) => {
+        const ss = path.resolve(copySrc, item);
+        fs.stat(ss, (err, stat) => {
+          if (err) {
+            callback(err);
+          } else {
+            const curSrc = path.resolve(copySrc, item);
+            const curDest = path.resolve(copyDest, item);
+
+            if (stat.isFile()) {
+              fs.createReadStream(curSrc).pipe(fs.createWriteStream(curDest));
+            } else if (stat.isDirectory()) {
+              fs.mkdirSync(curDest, { recursive: true });
+              copy(curSrc, curDest);
+            }
+          }
+        });
+      });
+    });
+  };
+
+  fs.access(dest, (err) => {
+    if (err) {
+      fs.mkdirSync(dest, { recursive: true });
+    }
+    copy(src, dest);
+  });
+};
+
+function buildHtml() {
+
+
+}
 
 
 
