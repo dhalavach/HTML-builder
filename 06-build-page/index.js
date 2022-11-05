@@ -123,7 +123,9 @@ function buildHtml() {
   let rs = fs.createReadStream(path.join(__dirname, 'template.html'));
   let ts = new Transform({
     transform(chunk, encoding, callback) {
-      callback(null, chunk.toString().toUpperCase())
+      callback(null, chunk.toString().replace(/{{header}}/, `${fs.readFileSync(path.join(__dirname, 'components', 'header.html'), (err, data) => {
+        return data;
+      })}`))
     }
   })
 
