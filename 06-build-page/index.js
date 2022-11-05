@@ -62,13 +62,10 @@ function copyAssets() {
         if (error) {
           console.log(error);
         } else {
-          files.forEach((file) => {
-            if (file.isFile()) {
-              fs.createReadStream(
-                path.join(__dirname, 'assets', file.name)
-              ).pipe(fs.createWriteStream(path.join(assetsOutputFolder, file.name)));
-            }
-          });
+          fs.cp(path.join(__dirname, 'assets'), assetsOutputFolder, { recursive: true }, error => {
+            if (error) console.log(error)
+          })
+
         }
       }
     );
