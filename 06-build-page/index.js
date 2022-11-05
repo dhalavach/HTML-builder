@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { Transform } = require('stream');
+const { Transform, pipeline } = require('stream');
 
 const destination = path.join(__dirname, 'project-dist');
 const assetsOutputFolder = path.join(destination, 'assets');
@@ -119,19 +119,51 @@ function copyRecursively(src, dest, callback) {
 
 
 function buildHtml() {
-  let ws = fs.createWriteStream(path.join(destination, 'index.html'));
-  let rs = fs.createReadStream(path.join(__dirname, 'template.html'));
-  let ts = new Transform({
-    transform(chunk, encoding, callback) {
-      callback(null, chunk.toString().replace(/{{header}}/, `${fs.readFileSync(path.join(__dirname, 'components', 'header.html'), (err, data) => {
-        return data;
-      })}`))
+
+  const rs = fs.createReadStream(path.join(__dirname, 'template.html'));
+  const ws = fs.createWriteStream(path.join(destination, 'index.html'));
+  const transform = new Transform({
+    transform(chunk, enc, cb) {
+      const header = fs.readFileSync(path.join(__dirname, 'components', 'header.html'), (err) => {
+        if (err) console.log(err);
+      });
+
+      const articles = fs.readFileSync(path.join(__dirname, 'components', 'articles.html'), (err) => {
+        if (err) console.log(err);
+      });
+
+      const footer = fs.readFileSync(path.join(__dirname, 'components', 'footer.html'), (err) => {
+        if (err) console.log(err);
+      });
+
+
+      this.push(chunk.toString()
+        .replace(/{{header}}/, `${header}`)
+        .replace(/{{articles}}/, `${articles}`)
+        .replace(/{{footer}}/, `${footer}`));
+      cb();
+
+
+
     }
   })
 
-  rs.pipe(ts).pipe(ws);
 
+  //rs.pipe(ts).pipe(ws);
 
+  pipeline(
+    rs,
+    transform,
+    ws,
+
+    (err) => {
+      if (err) {
+        console.log(err);
+      } else {
+        console.log('piping...')
+      }
+    }
+  );
 }
 
 
