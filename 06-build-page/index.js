@@ -10,6 +10,7 @@ function buildPage() {
   makeDir();
   bundleStyles();
   copyAssets();
+  buildHtml();
 }
 
 function makeDir() {
@@ -23,6 +24,7 @@ function makeDir() {
 //     makeDir();
 //   });
 // });
+
 
 function bundleStyles() {
   fs.readdir(
@@ -40,6 +42,7 @@ function bundleStyles() {
     }
   );
 }
+
 
 function copyAssets() {
   fs.access(assetsOutputFolder, (error) => {
@@ -60,7 +63,7 @@ function copyAssets() {
         if (error) {
           console.log(error);
         } else {
-          
+
           //TODO replace fs.cp with another method to copy folder
           // fs.cp(path.join(__dirname, 'assets'), assetsOutputFolder, { recursive: true }, error => {
           //   if (error) console.log(error)
@@ -113,11 +116,14 @@ function copyRecursively(src, dest, callback) {
   });
 };
 
+
 function buildHtml() {
+  let ws = fs.createWriteStream(path.join(destination, 'index.html'));
+  let rs = fs.createReadStream(path.join(__dirname, 'template.html'));
+  rs.pipe(ws);
 
 
 }
-
 
 
 buildPage();
