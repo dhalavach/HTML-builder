@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { Transform } = require('stream');
 
 const destination = path.join(__dirname, 'project-dist');
 const assetsOutputFolder = path.join(destination, 'assets');
@@ -120,7 +121,13 @@ function copyRecursively(src, dest, callback) {
 function buildHtml() {
   let ws = fs.createWriteStream(path.join(destination, 'index.html'));
   let rs = fs.createReadStream(path.join(__dirname, 'template.html'));
-  rs.pipe(ws);
+  let ts = new Transform({
+    transform(chunk, encoding, callback) {
+      callback(null, chunk.toString().toUpperCase())
+    }
+  })
+
+  rs.pipe(ts).pipe(ws);
 
 
 }
