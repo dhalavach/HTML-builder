@@ -117,9 +117,9 @@ async function buildHtml() {
           reject(err);
         }
         else {
-          setTimeout(function () {
-            resolve(data);
-          }, 0)
+
+          resolve(data);
+
         }
       });
     })
