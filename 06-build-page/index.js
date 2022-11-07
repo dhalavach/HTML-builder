@@ -118,24 +118,43 @@ function copyRecursively(src, dest, callback) {
 };
 
 
-function buildHtml() {
+async function buildHtml() {
+
+  function readHeader() {
+    return new Promise(function (resolve, reject) {
+      fs.readFile(path.join(__dirname, 'components', 'header.html'), { encoding: 'utf-8' }, function (err, data) {
+        if (err) {
+          console.log('Error reading file: ' + err)
+          reject(err);
+        }
+        else {
+          setTimeout(function () {
+            resolve(data);
+          }, 0)
+        }
+      });
+    })
+  }
+
+  const header = await readHeader();
+  // const articles = await readArticles();
+
 
   const rs = fs.createReadStream(path.join(__dirname, 'template.html'));
   const ws = fs.createWriteStream(path.join(destination, 'index.html'));
+
+
+
+  const articles = fs.readFileSync(path.join(__dirname, 'components', 'articles.html'), (err) => {
+    if (err) console.log(err);
+  });
+
+  const footer = fs.readFileSync(path.join(__dirname, 'components', 'footer.html'), (err) => {
+    if (err) console.log(err);
+  });
+
   const transform = new Transform({
     transform(chunk, enc, cb) {
-      const header = fs.readFileSync(path.join(__dirname, 'components', 'header.html'), (err) => {
-        if (err) console.log(err);
-      });
-
-      const articles = fs.readFileSync(path.join(__dirname, 'components', 'articles.html'), (err) => {
-        if (err) console.log(err);
-      });
-
-      const footer = fs.readFileSync(path.join(__dirname, 'components', 'footer.html'), (err) => {
-        if (err) console.log(err);
-      });
-
 
       this.push(chunk.toString()
         .replace(/{{header}}/, `${header}`)
@@ -143,13 +162,8 @@ function buildHtml() {
         .replace(/{{footer}}/, `${footer}`));
       cb();
 
-
-
     }
   })
-
-
-  //rs.pipe(ts).pipe(ws);
 
   pipeline(
     rs,
