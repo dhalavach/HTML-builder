@@ -6,6 +6,7 @@ const destination = path.join(__dirname, 'project-dist');
 const assetsOutputFolder = path.join(destination, 'assets');
 const writeStream = fs.createWriteStream(path.join(destination, 'style.css'));
 
+buildPage();
 
 function buildPage() {
   makeDir();
@@ -19,13 +20,6 @@ function makeDir() {
     if (err) console.error(err);
   });
 }
-
-// fs.access(destination, (error) => {
-//   error ? makeDir() : fs.rm(destination, { recursive: true, force: true }, () => {
-//     makeDir();
-//   });
-// });
-
 
 function bundleStyles() {
   fs.readdir(
@@ -64,11 +58,6 @@ function copyAssets() {
         if (error) {
           console.log(error);
         } else {
-
-          //TODO replace fs.cp with another method to copy folder
-          // fs.cp(path.join(__dirname, 'assets'), assetsOutputFolder, { recursive: true }, error => {
-          //   if (error) console.log(error)
-          // })
 
           copyRecursively(path.join(__dirname, 'assets'), assetsOutputFolder, error => {
             if (error) console.log(error);
@@ -120,9 +109,9 @@ function copyRecursively(src, dest, callback) {
 
 async function buildHtml() {
 
-  function readHeader() {
+  function readComponent(component) {
     return new Promise(function (resolve, reject) {
-      fs.readFile(path.join(__dirname, 'components', 'header.html'), { encoding: 'utf-8' }, function (err, data) {
+      fs.readFile(path.join(__dirname, 'components', `${component}`), { encoding: 'utf-8' }, function (err, data) {
         if (err) {
           console.log('Error reading file: ' + err)
           reject(err);
@@ -136,22 +125,14 @@ async function buildHtml() {
     })
   }
 
-  const header = await readHeader();
-  // const articles = await readArticles();
+  const header = await readComponent('header.html');
+  const articles = await readComponent('articles.html');
+  const footer = await readComponent('footer.html');
 
 
   const rs = fs.createReadStream(path.join(__dirname, 'template.html'));
   const ws = fs.createWriteStream(path.join(destination, 'index.html'));
 
-
-
-  const articles = fs.readFileSync(path.join(__dirname, 'components', 'articles.html'), (err) => {
-    if (err) console.log(err);
-  });
-
-  const footer = fs.readFileSync(path.join(__dirname, 'components', 'footer.html'), (err) => {
-    if (err) console.log(err);
-  });
 
   const transform = new Transform({
     transform(chunk, enc, cb) {
@@ -173,14 +154,11 @@ async function buildHtml() {
     (err) => {
       if (err) {
         console.log(err);
-      } else {
-        console.log('piping...')
       }
     }
   );
 }
 
 
-buildPage();
 
 
