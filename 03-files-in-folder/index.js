@@ -22,7 +22,7 @@ function listNames() {
                     path.join(__dirname, 'secret-folder', file.name)
                   )).slice(1) +
                   ' - ' +
-                  Math.round((fileStats.size / 1024 + Number.EPSILON) * 100 / 100) +
+                  (fileStats.size / 1024).toFixed(2) +
                   ' Kb'
                 );
               }
