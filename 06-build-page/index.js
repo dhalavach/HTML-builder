@@ -89,7 +89,9 @@ function copyRecursively(src, dest, callback) {
             if (stat.isFile()) {
               fs.createReadStream(curSrc).pipe(fs.createWriteStream(curDest));
             } else if (stat.isDirectory()) {
-              fs.mkdirSync(curDest, { recursive: true });
+              fs.mkdir(curDest, { recursive: true }, (err) => {
+                if (err) console.log(err);
+              });
               copy(curSrc, curDest);
             }
           }
@@ -100,7 +102,9 @@ function copyRecursively(src, dest, callback) {
 
   fs.access(dest, (err) => {
     if (err) {
-      fs.mkdirSync(dest, { recursive: true });
+      fs.mkdir(dest, { recursive: true }, (err) => {
+        if (err) console.log(err);
+      });
     }
     copy(src, dest);
   });
