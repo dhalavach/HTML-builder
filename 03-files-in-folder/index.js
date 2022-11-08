@@ -17,13 +17,13 @@ function listNames() {
                 if (error) console.log(error);
                 console.log(
                   path.parse(file.name).name +
-                    ' - ' +
-                    path.extname(
-                      path.join(__dirname, 'secret-folder', file.name)
-                    ) +
-                    ' - ' +
-                    fileStats.size / 1000 +
-                    ' Kb'
+                  ' - ' +
+                  (path.extname(
+                    path.join(__dirname, 'secret-folder', file.name)
+                  )).slice(1) +
+                  ' - ' +
+                  Math.round((fileStats.size / 1024 + Number.EPSILON) * 100 / 100) +
+                  ' Kb'
                 );
               }
             );
