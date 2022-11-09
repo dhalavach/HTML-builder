@@ -23,13 +23,19 @@ function makeDir() {
 
 function bundleStyles() {
   fs.readdir(
-    path.join(__dirname, 'styles'), { withFileTypes: true }, (error, files) => {
+    path.join(__dirname, 'styles'),
+    { withFileTypes: true },
+    (error, files) => {
       if (error) {
         console.log(error);
       } else {
         files.forEach((file) => {
-          if (path.extname(path.join(__dirname, 'styles', file.name)) === '.css') {
-            let readStream = fs.createReadStream(path.join(__dirname, 'styles', file.name));
+          if (
+            path.extname(path.join(__dirname, 'styles', file.name)) === '.css'
+          ) {
+            let readStream = fs.createReadStream(
+              path.join(__dirname, 'styles', file.name)
+            );
             readStream.pipe(writeStream);
           }
         });
@@ -38,14 +44,13 @@ function bundleStyles() {
   );
 }
 
-
 function copyAssets() {
   fs.access(assetsOutputFolder, (error) => {
     error
       ? copy()
       : fs.rm(assetsOutputFolder, { recursive: true, force: true }, () => {
-        copy();
-      });
+          copy();
+        });
   });
   function copy() {
     fs.mkdir(assetsOutputFolder, { recursive: true }, (err) => {
@@ -58,17 +63,18 @@ function copyAssets() {
         if (error) {
           console.log(error);
         } else {
-
-          copyRecursively(path.join(__dirname, 'assets'), assetsOutputFolder, error => {
-            if (error) console.log(error);
-          })
-
+          copyRecursively(
+            path.join(__dirname, 'assets'),
+            assetsOutputFolder,
+            (error) => {
+              if (error) console.log(error);
+            }
+          );
         }
       }
     );
   }
 }
-
 
 function copyRecursively(src, dest, callback) {
   const copy = (copySrc, copyDest) => {
@@ -108,23 +114,24 @@ function copyRecursively(src, dest, callback) {
     }
     copy(src, dest);
   });
-};
-
+}
 
 async function buildHtml() {
-
   function readComponent(component) {
     return new Promise(function (resolve, reject) {
-      fs.readFile(path.join(__dirname, 'components', `${component}`), { encoding: 'utf-8' }, function (err, data) {
-        if (err) {
-          console.log('Error reading file: ' + err)
-          reject(err);
+      fs.readFile(
+        path.join(__dirname, 'components', `${component}`),
+        { encoding: 'utf-8' },
+        function (err, data) {
+          if (err) {
+            console.log('Error reading file: ' + err);
+            reject(err);
+          } else {
+            resolve(data);
+          }
         }
-        else {
-          resolve(data);
-        }
-      });
-    })
+      );
+    });
   }
 
   function getComponentNames() {
@@ -135,9 +142,9 @@ async function buildHtml() {
         (error, files) => {
           if (error) {
             console.log(error);
-            reject(error)
+            reject(error);
           } else {
-            let result = []
+            let result = [];
             files.forEach((file) => {
               if (file.isFile()) {
                 result.push(file.name);
@@ -146,27 +153,25 @@ async function buildHtml() {
             resolve(result);
           }
         }
-      )
-    })
+      );
+    });
   }
 
   let components = await getComponentNames();
   // console.log(components)
 
   async function resolveComponents(components) {
-    let result = new Map()
+    let result = new Map();
     for (let i = 0; i < components.length; i++) {
-
-      let e = await readComponent(components[i])
-      result.set(components[i], e)
+      let e = await readComponent(components[i]);
+      result.set(components[i], e);
     }
     return new Promise(function (resolve) {
-      resolve(result)
-    }
-    )
+      resolve(result);
+    });
   }
 
-  let resolvedComponents = await resolveComponents(components)
+  let resolvedComponents = await resolveComponents(components);
   // console.log(resolvedComponents);
 
   function replaceTagsWithComponents(chunk) {
@@ -188,13 +193,10 @@ async function buildHtml() {
 
   const transform = new Transform({
     transform(chunk, enc, cb) {
-
-      this.push(
-        replaceTagsWithComponents(chunk)
-      );
+      this.push(replaceTagsWithComponents(chunk));
       cb();
-    }
-  })
+    },
+  });
 
   pipeline(
     rs,
