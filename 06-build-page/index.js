@@ -127,7 +127,6 @@ async function buildHtml() {
     })
   }
 
-
   function getComponentNames() {
     return new Promise(function (resolve, reject) {
       fs.readdir(
@@ -151,9 +150,8 @@ async function buildHtml() {
     })
   }
 
-
   let components = await getComponentNames();
-  console.log(components)
+  // console.log(components)
 
   async function resolveComponents(components) {
     let result = new Map()
@@ -169,43 +167,32 @@ async function buildHtml() {
   }
 
   let resolvedComponents = await resolveComponents(components)
+  // console.log(resolvedComponents);
 
+  function replaceTagsWithComponents(chunk) {
+    let res = chunk;
+    let i = 0;
 
-  console.log(resolvedComponents);
-
-  function replaceTagsWithComponents(chunk, components, resolvedComponents) {
-    for (i = 0; i < components.length; i++) {
-      chunk.toString().replace(/`{{${components[i].slice(0, -5)}}}`/, resolvedComponents.get(components[i]))
+    while (i < components.length) {
+      let tag = new RegExp('{{' + components[i].slice(0, -5) + '}}');
+      res = res.toString().replace(tag, resolvedComponents.get(components[i]));
+      i++;
     }
 
-    let result = chunk.toString()
-
+    return res;
   }
-
-  const header = await readComponent('header.html');
-  const articles = await readComponent('articles.html');
-  const footer = await readComponent('footer.html');
-  //const about = await readComponent('about.html');
-
 
   const rs = fs.createReadStream(path.join(__dirname, 'template.html'));
   const ws = fs.createWriteStream(path.join(destination, 'index.html'));
-
+  // console.log(resolvedComponents.get(components[0]))
 
   const transform = new Transform({
     transform(chunk, enc, cb) {
 
       this.push(
-
-        chunk.toString()
-          //.replace(/{{about}}/, `${about}`)
-          .replace(/{{header}}/, `${header}`)
-          .replace(/{{articles}}/, `${articles}`)
-          .replace(/{{footer}}/, `${footer}`)
-
+        replaceTagsWithComponents(chunk)
       );
       cb();
-
     }
   })
 
@@ -221,7 +208,3 @@ async function buildHtml() {
     }
   );
 }
-
-
-
-
