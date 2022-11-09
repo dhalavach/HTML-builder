@@ -10,6 +10,15 @@ const rl = readline.createInterface({
 const exitCommand = 'exit';
 const output = 'output.txt';
 
+fs.writeFile(
+  path.resolve(__dirname, output),
+  '',
+  { encoding: 'utf8', flag: 'a' },
+  (err) => {
+    if (err) console.log(err);
+  }
+);
+
 stdout.write("Enter text and press ENTER or type 'exit' to leave: ");
 
 rl.on('line', (line) => {
