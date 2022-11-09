@@ -121,17 +121,71 @@ async function buildHtml() {
           reject(err);
         }
         else {
-
           resolve(data);
-
         }
       });
     })
   }
 
+
+  function getComponentNames() {
+    return new Promise(function (resolve, reject) {
+      fs.readdir(
+        path.join(__dirname, 'components'),
+        { withFileTypes: true },
+        (error, files) => {
+          if (error) {
+            console.log(error);
+            reject(error)
+          } else {
+            let result = []
+            files.forEach((file) => {
+              if (file.isFile()) {
+                result.push(file.name);
+              }
+            });
+            resolve(result);
+          }
+        }
+      )
+    })
+  }
+
+
+  let components = await getComponentNames();
+  console.log(components)
+
+  async function resolveComponents(components) {
+    let result = new Map()
+    for (let i = 0; i < components.length; i++) {
+
+      let e = await readComponent(components[i])
+      result.set(components[i], e)
+    }
+    return new Promise(function (resolve) {
+      resolve(result)
+    }
+    )
+  }
+
+  let resolvedComponents = await resolveComponents(components)
+
+
+  console.log(resolvedComponents);
+
+  function replaceTagsWithComponents(chunk, components, resolvedComponents) {
+    for (i = 0; i < components.length; i++) {
+      chunk.toString().replace(/`{{${components[i].slice(0, -5)}}}`/, resolvedComponents.get(components[i]))
+    }
+
+    let result = chunk.toString()
+
+  }
+
   const header = await readComponent('header.html');
   const articles = await readComponent('articles.html');
   const footer = await readComponent('footer.html');
+  //const about = await readComponent('about.html');
 
 
   const rs = fs.createReadStream(path.join(__dirname, 'template.html'));
@@ -141,10 +195,15 @@ async function buildHtml() {
   const transform = new Transform({
     transform(chunk, enc, cb) {
 
-      this.push(chunk.toString()
-        .replace(/{{header}}/, `${header}`)
-        .replace(/{{articles}}/, `${articles}`)
-        .replace(/{{footer}}/, `${footer}`));
+      this.push(
+
+        chunk.toString()
+          //.replace(/{{about}}/, `${about}`)
+          .replace(/{{header}}/, `${header}`)
+          .replace(/{{articles}}/, `${articles}`)
+          .replace(/{{footer}}/, `${footer}`)
+
+      );
       cb();
 
     }
