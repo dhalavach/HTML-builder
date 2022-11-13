@@ -1,37 +1,33 @@
-const fs = require('fs');
 const path = require('path');
+const { readdir, stat } = require('fs/promises');
 
-function listNames() {
-  fs.readdir(
-    path.join(__dirname, 'secret-folder'),
-    { withFileTypes: true },
-    (error, files) => {
-      if (error) {
-        console.log(error);
+async function displayFilesInfo() {
+  const folderPath = path.join(__dirname, 'secret-folder');
+  const files = await readdir(folderPath, { withFileTypes: true });
+
+  const fileInfo = await Promise.all(
+    files.map(async (file) => {
+      if (file.isFile()) {
+        const filePath = path.join(folderPath, file.name);
+        const fileExt = path.extname(file.name);
+        const fileStats = await stat(filePath);
+        const fileName = path.basename(filePath, fileExt);
+        const fileSize = fileStats.size;
+        const formattedExt = fileExt.slice(1);
+        const formattedSize = (fileSize / 1024).toFixed(2) + 'Kb';
+
+        return {
+          fileName,
+          extension: formattedExt,
+          size: formattedSize,
+        };
       } else {
-        files.forEach((file) => {
-          if (file.isFile()) {
-            fs.stat(
-              path.join(__dirname, 'secret-folder', file.name),
-              (error, fileStats) => {
-                if (error) console.log(error);
-                console.log(
-                  path.parse(file.name).name +
-                    ' - ' +
-                    path
-                      .extname(path.join(__dirname, 'secret-folder', file.name))
-                      .slice(1) +
-                    ' - ' +
-                    (fileStats.size / 1024).toFixed(2) +
-                    ' Kb'
-                );
-              }
-            );
-          }
-        });
+        return null;
       }
-    }
+    })
   );
+  console.log(`Files in folder ${folderPath}`);
+  console.table(fileInfo.filter(Boolean));
 }
 
-listNames();
+displayFilesInfo();
