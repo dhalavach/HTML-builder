@@ -12,13 +12,6 @@ function copyDir() {
         });
   });
 
-  // if (fs.existsSync(destination)) {
-  //   fs.rmSync(destination, { recursive: true, force: true }, (error) => {
-  //     if (error) console.log(error);
-  //   });
-  //   console.log('folder deleted');
-  // }
-
   function copy() {
     fs.mkdir(destination, { recursive: true }, (err) => {
       if (err) console.error(err);
