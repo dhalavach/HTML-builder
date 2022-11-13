@@ -8,16 +8,11 @@ const rl = readline.createInterface({
   output: process.stdout,
 });
 const exitCommand = 'exit';
-const output = 'output.txt';
+const outputPath = path.resolve(__dirname, 'output.txt');
 
-fs.writeFile(
-  path.resolve(__dirname, output),
-  '',
-  { encoding: 'utf8', flag: 'a' },
-  (err) => {
-    if (err) console.log(err);
-  }
-);
+fs.writeFile(outputPath, '', { encoding: 'utf8', flag: 'a' }, (err) => {
+  if (err) console.log(err);
+});
 
 stdout.write("Enter text and press ENTER or type 'exit' to leave: ");
 
@@ -27,7 +22,7 @@ rl.on('line', (line) => {
     process.exit(0);
   } else {
     fs.writeFile(
-      path.resolve(__dirname, output),
+      outputPath,
       line + '\n',
       { encoding: 'utf8', flag: 'a' },
       (err) => {
@@ -37,7 +32,6 @@ rl.on('line', (line) => {
   }
 });
 
-rl.on('close', function () {
+rl.on('close', () => {
   stdout.write('\nBYE!');
-  process.exit(0);
 });
